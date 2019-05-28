@@ -1,12 +1,12 @@
 let sdkMap = {
-    // 键：sdkUrl 值：如下
+    // 键：从sdkUrl提取 值：如下
     // url sdk链接
     // status 当前状态：PENDING, LOADED, LOADED_ERR, TIME_OUT_ERR
     // error LOADED_ERR状态下的Error对象
 };
 // 加载中的sdk promise
 let promiseMap = {
-    // sdkUrl: loadingPromise
+    // key（从sdkUrl提取）: loadingPromise
 };
 const PENDING = 1;
 const LOADED = 2;
@@ -59,26 +59,27 @@ const startLoading = (sdkUrl = '', timeout) => {
  * @param {Boolean} options.ignoreQuery 是否忽略sdkUrl的请求参数，参数不同也认为是同一个sdk。默认false。
  */
 const loadSDK = (sdkUrl = '', options = {}) => new Promise((resolve) => {
+    let key = sdkUrl;
     const {
         timeout,
         ignoreProtocal = false,
         ignoreQuery = false
     } = options;
     if(ignoreProtocal) {
-        sdkUrl = sdkUrl.replace(/^(https?:)?\/\//, '');
+        key = key.replace(/^(https?:)?\/\//, '');
     }
     if(ignoreQuery) {
-        sdkUrl = sdkUrl.replace(/\?[^?]*$/, '');
+        key = key.replace(/\?[^?]*$/, '');
     }
-    const promise = promiseMap[sdkUrl];
-    let sdkInfo = sdkMap[sdkUrl];
+    const promise = promiseMap[key];
+    let sdkInfo = sdkMap[key];
     // sdk未加载
     if(!sdkInfo && !promise) {
         let loadingPromise = startLoading(sdkUrl, timeout);
-        promiseMap[sdkUrl] = loadingPromise;
+        promiseMap[key] = loadingPromise;
         loadingPromise.then((res) => {
-            sdkInfo = sdkMap[sdkUrl] = res;
-            delete promiseMap[sdkUrl];
+            sdkInfo = sdkMap[key] = res;
+            delete promiseMap[key];
             resolve(sdkInfo);
         });
         return;
