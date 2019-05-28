@@ -54,10 +54,22 @@ const startLoading = (sdkUrl = '', timeout) => {
 /**
  * 单例的加载 js sdk
  * @param {String} sdkUrl
- * @param {*} options timeout: 默认10s，超过10s加载未结束，直接返回并报异常
+ * @param {Number} options.timeout sdk加载超时时间，超时后直接返回。默认undefined，无超时。
+ * @param {Boolean} options.ignoreProtocal 是否忽略sdkUrl的协议头，协议头不同也认为是同一个sdk。默认false。
+ * @param {Boolean} options.ignoreQuery 是否忽略sdkUrl的请求参数，参数不同也认为是同一个sdk。默认false。
  */
 const loadSDK = (sdkUrl = '', options = {}) => new Promise((resolve) => {
-    const { timeout } = options;
+    const {
+        timeout,
+        ignoreProtocal = false,
+        ignoreQuery = false
+    } = options;
+    if(ignoreProtocal) {
+        sdkUrl = sdkUrl.replace(/^(https?:)?\/\//, '');
+    }
+    if(ignoreQuery) {
+        sdkUrl = sdkUrl.replace(/\?[^?]*$/, '');
+    }
     const promise = promiseMap[sdkUrl];
     let sdkInfo = sdkMap[sdkUrl];
     // sdk未加载
