@@ -56,7 +56,7 @@ const startLoading = (sdkUrl = '', timeout) => {
  * @param {String} sdkUrl
  * @param {*} options timeout: 默认10s，超过10s加载未结束，直接返回并报异常
  */
-const loadSDK = async (sdkUrl = '', options = {}) => {
+const loadSDK = (sdkUrl = '', options = {}) => new Promise((resolve) => {
     const { timeout } = options;
     const promise = promiseMap[sdkUrl];
     let sdkInfo = sdkMap[sdkUrl];
@@ -64,17 +64,23 @@ const loadSDK = async (sdkUrl = '', options = {}) => {
     if(!sdkInfo && !promise) {
         let loadingPromise = startLoading(sdkUrl, timeout);
         promiseMap[sdkUrl] = loadingPromise;
-        sdkInfo = sdkMap[sdkUrl] = await loadingPromise;
-        delete promiseMap[sdkUrl];
-        return sdkInfo;
+        loadingPromise.then((res) => {
+            sdkInfo = sdkMap[sdkUrl] = res;
+            delete promiseMap[sdkUrl];
+            resolve(sdkInfo);
+        });
+        return;
     }
     // sdk加载中
     if(promise && !sdkInfo) {
-        return await promise;
+        promise.then((res) => {
+            resolve(res);
+        });
+        return;
     }
     // sdk已加载完成
-    return sdkInfo;
-};
+    resolve(sdkInfo);
+});
 
 export {
     loadSDK,
