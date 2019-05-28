@@ -2,6 +2,7 @@ let sdkMap = {
     // 键：sdkUrl 值：如下
     // url sdk链接
     // status 当前状态：PENDING, LOADED, LOADED_ERR, TIME_OUT_ERR
+    // error LOADED_ERR状态下的Error对象
 };
 // 加载中的sdk promise
 let promiseMap = {
@@ -12,9 +13,7 @@ const LOADED = 2;
 const LOADED_ERR = 3;
 const TIME_OUT_ERR = 4;
 
-const TIME_OUT = 1000 * 10;
-
-const startLoading = (sdkUrl = '', timeout = TIME_OUT) => {
+const startLoading = (sdkUrl = '', timeout) => {
     let sdkInfo = {
         url: sdkUrl,
         status: PENDING,
@@ -45,6 +44,7 @@ const startLoading = (sdkUrl = '', timeout = TIME_OUT) => {
             }
             clearNum && clearTimeout(clearNum);
             sdkInfo.status = LOADED_ERR;
+            sdkInfo.error = e;
             resolve(sdkInfo);
         });
         document.body.parentNode.appendChild(script);
@@ -59,7 +59,7 @@ const startLoading = (sdkUrl = '', timeout = TIME_OUT) => {
 const loadSDK = async (sdkUrl = '', options = {}) => {
     const { timeout } = options;
     const promise = promiseMap[sdkUrl];
-    const sdkInfo = sdkMap[sdkUrl];
+    let sdkInfo = sdkMap[sdkUrl];
     // sdk未加载
     if(!sdkInfo && !promise) {
         let loadingPromise = startLoading(sdkUrl, timeout);
@@ -76,12 +76,18 @@ const loadSDK = async (sdkUrl = '', options = {}) => {
     return sdkInfo;
 };
 
+export {
+    loadSDK,
+    PENDING,
+    LOADED,
+    LOADED_ERR,
+    TIME_OUT_ERR
+}
+
 export default {
     loadSDK,
-    status: {
-        PENDING,
-        LOADED,
-        LOADED_ERR,
-        TIME_OUT_ERR
-    }
+    PENDING,
+    LOADED,
+    LOADED_ERR,
+    TIME_OUT_ERR
 };
