@@ -1,13 +1,15 @@
-let sdkMap = {
+window.__singleton_sdk_loader__sdkmap__ = window.__singleton_sdk_loader__sdkmap__ || {
     // 键：从sdkUrl提取 值：如下
     // url sdk链接
     // status 当前状态：PENDING, LOADED, LOADED_ERR, TIME_OUT_ERR
     // error LOADED_ERR状态下的Error对象
 };
 // 加载中的sdk promise
-let promiseMap = {
+window.__singleton_sdk_loader__promisemap__ = window.__singleton_sdk_loader__promisemap__ || {
     // key（从sdkUrl提取）: loadingPromise
 };
+let sdkMap = window.__singleton_sdk_loader__sdkmap__;
+let promiseMap = window.__singleton_sdk_loader__promisemap__;
 const PENDING = 1;
 const LOADED = 2;
 const LOADED_ERR = 3;
